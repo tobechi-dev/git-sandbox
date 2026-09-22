@@ -14,11 +14,26 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Wrap with Vite integration
+	vi, err := inertia.NewVite(i,
+		inertia.WithBuildManifest("web/dist/.vite/manifest.json"),
+		inertia.WithEntryPoints("src/app.jsx"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	mux := http.NewServeMux()
 
-	// Home page — renders the "Home" React component
-	mux.Handle("/", i.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		err := i.Render(w, r, "Home", inertia.Props{
+	// Serve Vite build assets at /build/*
+	// Strips /build/ prefix and serves files from web/dist/
+	mux.Handle("/build/",
+		http.StripPrefix("/build/", http.FileServer(http.Dir("web/dist"))),
+	)
+
+	// Home page
+	mux.Handle("/", vi.Middleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := vi.Render(w, r, "Home", inertia.Props{
 			"message": "Git Sandbox is alive 🚀",
 		})
 		if err != nil {
