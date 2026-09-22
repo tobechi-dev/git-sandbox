@@ -18,6 +18,7 @@ func main() {
 	vi, err := inertia.NewVite(i,
 		inertia.WithBuildManifest("web/dist/.vite/manifest.json"),
 		inertia.WithEntryPoints("src/app.jsx"),
+		inertia.WithHotFile("web/.vite/hot"),
 	)
 	if err != nil {
 		log.Fatal(err)
